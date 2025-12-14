@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mib-finance-v8.1-final';
+const CACHE_NAME = 'mib-finance-v8.2-final';
 const ASSETS = [
     './',
     './index.html',

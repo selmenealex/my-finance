@@ -987,10 +987,25 @@
         catch (e) {
             console.log('Offline/Error', e);
             setSyncStatus(false);
-            // If offline, maybe load from local storage if we want offline support? 
-            // For secure multi-user, offline is tricky without local encryption. 
-            // Let's keep it online-first for security as requested.
-            // Or fallback to last known state if user matches?
+
+            // Fallback: If we have data in memory, fine. If not, try to init empty or show auth.
+            // For now, let's force Home view so they see SOMETHING (likely empty state)
+            // instead of a white screen.
+            if ( !APP.data) {
+
+                // If we failed to load data and have nothing, maybe strictly logout?
+                // Or initialize empty data so UI renders?
+                APP.data= {
+                    users: [], transactions: [], budgets: [], goals: []
+                }
+
+                ;
+            }
+
+            document.querySelector('.bottom-nav').style.display='flex';
+            document.querySelector('.header').style.display='flex';
+            switchView('view-home');
+            updateUI();
         }
         }
 
