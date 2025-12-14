@@ -110,10 +110,12 @@ app.get('/api/data', authenticateToken, async (req, res) => {
     try {
         if (process.env.MONGODB_URI) {
             const user = await UserModel.findOne({ username: req.user.username });
-            res.json(user ? user.data : {});
+            if (!user) return res.sendStatus(401); // User deleted or DB reset
+            res.json(user.data);
         } else {
             const user = loadLocalUsers().find(u => u.username === req.user.username);
-            res.json(user ? user.data : {});
+            if (!user) return res.sendStatus(401); // User deleted or DB reset
+            res.json(user.data);
         }
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -123,13 +125,16 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 app.post('/api/data', authenticateToken, async (req, res) => {
     try {
         if (process.env.MONGODB_URI) {
-            await UserModel.findOneAndUpdate({ username: req.user.username }, { data: req.body });
+            const result = await UserModel.findOneAndUpdate({ username: req.user.username }, { data: req.body });
+            if (!result) return res.sendStatus(401);
         } else {
             const users = loadLocalUsers();
             const idx = users.findIndex(u => u.username === req.user.username);
             if (idx !== -1) {
                 users[idx].data = req.body;
                 saveLocalUsers(users);
+            } else {
+                return res.sendStatus(401); // User not found
             }
         }
         res.json({ success: true });
