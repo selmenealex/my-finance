@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My MIB - Smart Finance</title>
+    <title>Drahmi - Smart Finance</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -963,6 +963,26 @@
 
             if (res.ok) {
                 APP.data=await res.json();
+
+                // SAFETY FIX: Ensure data structure exists if server returns empty
+                if ( !APP.data || !APP.data.users) {
+                    console.warn("Data empty/corrupt, initializing default structure");
+
+                    APP.data= {
+
+                        users: [],
+                        transactions: [],
+                        budgets: [],
+                        goals: [],
+                        rates: {}
+
+                        ,
+                        currentUser: null,
+                        ...APP.data
+                    }
+
+                    ;
+                }
 
                 // Migration: Ensure budgets have IDs if needed (though new accounts start fresh)
                 if (APP.data.budgets) {
